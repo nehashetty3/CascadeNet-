@@ -5,6 +5,7 @@ dist
 .DS_Store
 *.log
 *.tsbuildinfo
+scripts/tmp
 .env
 .env.local
 .env.production

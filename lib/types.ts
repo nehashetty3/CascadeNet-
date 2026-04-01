@@ -53,14 +53,33 @@ export type DashboardStat = {
   change: string;
 };
 
+export type MaintenanceMode = "observe" | "dispatch" | "closed";
+
+export type OperatorInputs = {
+  scenario: ScenarioId;
+  obstructionPct: number;
+  dependencyScale: number;
+  fanAssistPct: number;
+  maintenanceMode: MaintenanceMode;
+};
+
 export type TimelineEvent = {
   minute: number;
   title: string;
   detail: string;
 };
 
+export type EventLogEntry = {
+  id: string;
+  time: string;
+  severity: "info" | "warning" | "critical" | "success";
+  source: string;
+  message: string;
+};
+
 export type DashboardSnapshot = {
   scenario: ScenarioId;
+  inputs: OperatorInputs;
   headline: string;
   summary: string;
   racks: RackNode[];
@@ -69,5 +88,6 @@ export type DashboardSnapshot = {
   workOrders: WorkOrder[];
   stats: DashboardStat[];
   timeline: TimelineEvent[];
+  eventLog: EventLogEntry[];
   hmaxPayload: Record<string, unknown>;
 };

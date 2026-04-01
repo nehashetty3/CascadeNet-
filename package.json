@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "capture:screenshots": "node scripts/capture-screenshots.mjs"
+    "capture:screenshots": "node scripts/capture-screenshots.mjs",
+    "render:mock-video": "node scripts/render-mock-video.mjs && python3 scripts/build_mock_gif.py"
   },
   "dependencies": {
     "clsx": "^2.1.1",

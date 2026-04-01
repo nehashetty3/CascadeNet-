@@ -28,6 +28,34 @@ function modalityBars(rack: RackNode) {
   ];
 }
 
+function HeroLinework() {
+  return (
+    <svg className="hero-linework" viewBox="0 0 900 420" aria-hidden="true">
+      <path d="M38 112C154 38 271 24 426 70C579 115 700 104 860 32" />
+      <path d="M64 208C160 170 292 154 396 190C516 232 666 265 838 212" />
+      <path d="M110 314C236 272 340 286 448 328C560 372 688 383 834 332" />
+      <circle cx="426" cy="70" r="6" />
+      <circle cx="396" cy="190" r="5" />
+      <circle cx="448" cy="328" r="6" />
+    </svg>
+  );
+}
+
+function TwinLinework() {
+  return (
+    <svg className="twin-linework" viewBox="0 0 1200 640" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M62 134C184 78 314 74 454 120C598 168 762 164 930 112C1028 82 1108 80 1160 94" />
+      <path d="M80 502C210 452 346 450 478 502C628 560 784 572 948 524C1032 500 1102 486 1160 492" />
+      <path d="M420 138C502 196 554 248 598 318C648 398 734 456 878 510" />
+      <path d="M464 122C586 144 688 172 768 216" />
+      <path d="M764 216C814 266 856 314 888 380" />
+      <circle cx="464" cy="122" r="5" />
+      <circle cx="764" cy="216" r="5" />
+      <circle cx="888" cy="380" r="5" />
+    </svg>
+  );
+}
+
 export function Dashboard() {
   const [scenario, setScenario] = useState<ScenarioId>("cascade");
   const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
@@ -70,6 +98,7 @@ export function Dashboard() {
   return (
     <main className="shell">
       <section className="hero-card hero-stage">
+        <HeroLinework />
         <div className="hero-frame">
           <div className="hero-copy-column">
             <div className="eyebrow">CascadeNet / HMAX RackSentinel</div>
@@ -142,6 +171,9 @@ export function Dashboard() {
           </div>
 
           <div className="twin-map">
+            <TwinLinework />
+            <div className="twin-pulse twin-pulse-a" />
+            <div className="twin-pulse twin-pulse-b" />
             <div className="twin-overlay twin-overlay-north">Aisle north</div>
             <div className="twin-overlay twin-overlay-south">Aisle south</div>
 

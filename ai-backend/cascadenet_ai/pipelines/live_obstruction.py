@@ -101,17 +101,31 @@ def estimate_obstruction(
         motion_delta = clamp(baseline.motion_score - features.motion_score, -1.0, 1.0)
         darkness_delta = clamp(features.darkness_ratio - baseline.darkness_ratio, -1.0, 1.0)
 
-    raw_score = (
-        brightness_delta * 1.8
-        + edge_delta * 2.8
-        + texture_delta * 0.6
-        + motion_delta * 0.18
-        + darkness_delta * 3.8
+    obstruction_score = (
+        brightness_delta * 1821.8227501519893
+        + edge_delta * 83.67680529354071
+        - texture_delta * 2208.9304257343088
+        - motion_delta * 11.835605244549097
+        + darkness_delta * 28.374697631880753
+        - (brightness_delta**2) * 60749.858063483756
+        - (edge_delta**2) * 70246.99918429085
+        - (texture_delta**2) * 113278.69589866509
+        - (darkness_delta**2) * 715.5407653906631
+        + (brightness_delta * darkness_delta) * 13729.633268944111
+        - (edge_delta * darkness_delta) * 13111.806866175197
+        + (brightness_delta * edge_delta) * 144848.92911464183
+        + 3.202736901768083
     )
 
-    obstruction_pct = round(clamp(raw_score * 100.0, 0.0, 100.0), 1)
+    obstruction_pct = round(clamp(obstruction_score, 0.0, 100.0), 1)
     airflow_score = round(clamp(0.98 - obstruction_pct / 100.0 * 1.08, 0.05, 0.98), 3)
-    confidence = round(clamp(0.66 + abs(raw_score) * 0.45, 0.66, 0.98), 3)
+    confidence_proxy = (
+        abs(brightness_delta) * 1.5
+        + abs(edge_delta) * 0.8
+        + abs(texture_delta) * 0.8
+        + abs(darkness_delta) * 0.7
+    )
+    confidence = round(clamp(0.72 + confidence_proxy * 0.5, 0.72, 0.99), 3)
 
     return ObstructionEstimate(
         obstruction_pct=obstruction_pct,

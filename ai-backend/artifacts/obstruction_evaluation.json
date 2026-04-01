@@ -1,0 +1,129 @@
+{
+  "dataset": {
+    "baseline_samples": 6,
+    "evaluation_samples": 70,
+    "obstruction_levels": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      32,
+      36,
+      40,
+      46,
+      52,
+      58
+    ],
+    "notes": "Synthetic rack-intake benchmark with controlled obstruction levels and image noise."
+  },
+  "metrics": {
+    "mae_pct": 7.83,
+    "rmse_pct": 9.83,
+    "mape_pct": 38.22,
+    "three_class_accuracy": 0.6857,
+    "threshold_accuracy_15pct": 0.8286,
+    "average_confidence": 0.7531
+  },
+  "samples": [
+    {
+      "true_obstruction_pct": 0.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 0.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.664
+    },
+    {
+      "true_obstruction_pct": 0.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 0.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.684
+    },
+    {
+      "true_obstruction_pct": 0.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 0.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.712
+    },
+    {
+      "true_obstruction_pct": 0.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 0.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.729
+    },
+    {
+      "true_obstruction_pct": 0.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 0.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.743
+    },
+    {
+      "true_obstruction_pct": 4.0,
+      "predicted_obstruction_pct": 3.1,
+      "absolute_error": 0.8999999999999999,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.674
+    },
+    {
+      "true_obstruction_pct": 4.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 4.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.665
+    },
+    {
+      "true_obstruction_pct": 4.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 4.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.69
+    },
+    {
+      "true_obstruction_pct": 4.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 4.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.708
+    },
+    {
+      "true_obstruction_pct": 4.0,
+      "predicted_obstruction_pct": 0.0,
+      "absolute_error": 4.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.723
+    },
+    {
+      "true_obstruction_pct": 8.0,
+      "predicted_obstruction_pct": 7.0,
+      "absolute_error": 1.0,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.692
+    },
+    {
+      "true_obstruction_pct": 8.0,
+      "predicted_obstruction_pct": 2.3,
+      "absolute_error": 5.7,
+      "true_class": "low",
+      "predicted_class": "low",
+      "confidence": 0.67
+    }
+  ]
+}

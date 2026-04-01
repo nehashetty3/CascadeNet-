@@ -80,6 +80,28 @@ python3 -m cascadenet_ai.live_webcam --video "/absolute/path/to/rack-video.mp4" 
 
 That will process the video, write the latest obstruction artifact, and let the Next.js dashboard pick it up automatically.
 
+## Evaluate the obstruction detector
+
+Run the synthetic benchmark:
+
+```bash
+cd ai-backend
+python3 -m pip install opencv-python
+python3 scripts/evaluate_obstruction_detector.py
+```
+
+This writes:
+
+- `ai-backend/artifacts/obstruction_evaluation.json`
+
+The report includes:
+
+- obstruction MAE
+- obstruction RMSE
+- three-class accuracy (`low`, `moderate`, `high`)
+- threshold accuracy at 15% obstruction
+- average model confidence
+
 Artifacts written on save or exit:
 
 - `ai-backend/artifacts/live_webcam_obstruction.json`

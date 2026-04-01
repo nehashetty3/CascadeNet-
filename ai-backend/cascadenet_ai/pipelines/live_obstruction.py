@@ -102,16 +102,16 @@ def estimate_obstruction(
         darkness_delta = clamp(features.darkness_ratio - baseline.darkness_ratio, -1.0, 1.0)
 
     raw_score = (
-        brightness_delta * 0.18
-        + edge_delta * 0.26
-        + texture_delta * 0.21
-        + motion_delta * 0.09
-        + darkness_delta * 0.26
+        brightness_delta * 1.8
+        + edge_delta * 2.8
+        + texture_delta * 0.6
+        + motion_delta * 0.18
+        + darkness_delta * 3.8
     )
 
-    obstruction_pct = round(clamp((raw_score + 0.18) * 72.0, 0.0, 100.0), 1)
+    obstruction_pct = round(clamp(raw_score * 100.0, 0.0, 100.0), 1)
     airflow_score = round(clamp(0.98 - obstruction_pct / 100.0 * 1.08, 0.05, 0.98), 3)
-    confidence = round(clamp(0.62 + abs(raw_score) * 0.85, 0.62, 0.97), 3)
+    confidence = round(clamp(0.66 + abs(raw_score) * 0.45, 0.66, 0.98), 3)
 
     return ObstructionEstimate(
         obstruction_pct=obstruction_pct,

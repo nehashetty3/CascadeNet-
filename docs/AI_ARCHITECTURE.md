@@ -39,6 +39,7 @@ The frontend stays stable and presentation-friendly, while the backend can grow 
   - JSON artifact generation
   - Graph edges, risk ranking, and cooling recommendations
   - Live webcam obstruction detection with saved artifact output
+  - Synthetic evaluation pipeline for obstruction metrics
 - Ready for real model replacement:
   - ORB-SLAM3 pose ingestion
   - Gaussian Splatting / radiance-field twin reconstruction

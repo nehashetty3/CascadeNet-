@@ -10,6 +10,7 @@ type ControlState = {
   dependencyScale: number;
   fanAssistPct: number;
   maintenanceMode: MaintenanceMode;
+  useLive: boolean;
 };
 
 const initialControls: ControlState = {
@@ -17,7 +18,8 @@ const initialControls: ControlState = {
   obstructionPct: 40,
   dependencyScale: 1,
   fanAssistPct: 12,
-  maintenanceMode: "dispatch"
+  maintenanceMode: "dispatch",
+  useLive: true
 };
 
 function modalityBars(rack: RackNode) {
@@ -64,36 +66,53 @@ function TwinRouteOverlay({ snapshot }: { snapshot: DashboardSnapshot }) {
 export function Dashboard() {
   const [controls, setControls] = useState<ControlState>(initialControls);
   const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
+  const [selectedRackId, setSelectedRackId] = useState<string>("rack-04");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
+    let intervalId: ReturnType<typeof setInterval> | undefined;
 
-    const params = new URLSearchParams({
-      scenario: controls.scenario,
-      obstructionPct: String(controls.obstructionPct),
-      dependencyScale: String(controls.dependencyScale),
-      fanAssistPct: String(controls.fanAssistPct),
-      maintenanceMode: controls.maintenanceMode
-    });
+    const loadSnapshot = (preserveLoading: boolean) => {
+      if (!preserveLoading) {
+        setLoading(true);
+      }
 
-    fetch(`/api/dashboard?${params.toString()}`)
-      .then((res) => res.json())
-      .then((data: DashboardSnapshot) => {
-        if (active) {
-          setSnapshot(data);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setLoading(false);
-        }
+      const params = new URLSearchParams({
+        scenario: controls.scenario,
+        obstructionPct: String(controls.obstructionPct),
+        dependencyScale: String(controls.dependencyScale),
+        fanAssistPct: String(controls.fanAssistPct),
+        maintenanceMode: controls.maintenanceMode,
+        useLive: String(controls.useLive)
       });
+
+      fetch(`/api/dashboard?${params.toString()}`, { cache: "no-store" })
+        .then((res) => res.json())
+        .then((data: DashboardSnapshot) => {
+          if (active) {
+            setSnapshot(data);
+            setLoading(false);
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setLoading(false);
+          }
+        });
+    };
+
+    loadSnapshot(false);
+
+    if (controls.useLive) {
+      intervalId = setInterval(() => loadSnapshot(true), 3000);
+    }
 
     return () => {
       active = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
   }, [controls]);
 
@@ -105,6 +124,11 @@ export function Dashboard() {
     return <div className="shell"><div className="ops-panel">Unable to load CascadeNet console.</div></div>;
   }
 
+  const selectedRack =
+    snapshot.racks.find((rack) => rack.id === selectedRackId) ??
+    snapshot.racks.find((rack) => rack.status === "critical") ??
+    snapshot.racks[0];
+
   return (
     <main className="shell ops-shell">
       <section className="ops-header">
@@ -112,6 +136,12 @@ export function Dashboard() {
           <div className="ops-kicker">CascadeNet operations console</div>
           <h1>{snapshot.headline}</h1>
           <p className="ops-summary">{snapshot.summary}</p>
+          <p className="ops-summary">
+            Data source: <strong>{snapshot.dataSource.mode === "live-webcam" ? "Live webcam artifact" : "Simulated scenario engine"}</strong>
+            {snapshot.dataSource.mode === "live-webcam" && snapshot.dataSource.artifactUpdatedAt
+              ? ` • updated ${snapshot.dataSource.artifactUpdatedAt}`
+              : ""}
+          </p>
         </div>
         <div className="ops-status-strip">
           {snapshot.stats.map((stat) => (
@@ -133,6 +163,24 @@ export function Dashboard() {
             </div>
 
             <label className="ops-field">
+              <span>Data source</span>
+              <select
+                value={controls.useLive ? "live" : "simulated"}
+                onChange={(event) =>
+                  setControls((current) => ({ ...current, useLive: event.target.value === "live" }))
+                }
+              >
+                <option value="live">Live webcam artifact</option>
+                <option value="simulated">Manual simulation</option>
+              </select>
+              <small>
+                {snapshot.dataSource.mode === "live-webcam"
+                  ? `Reading ${snapshot.dataSource.liveRackId ?? "rack"} at ${Math.round(snapshot.dataSource.liveObstructionPct ?? 0)}% obstruction`
+                  : "Fallback to local simulation if no live artifact is present"}
+              </small>
+            </label>
+
+            <label className="ops-field">
               <span>Operating state</span>
               <select
                 value={controls.scenario}
@@ -151,9 +199,14 @@ export function Dashboard() {
                 min="0"
                 max="60"
                 value={controls.obstructionPct}
+                disabled={controls.useLive && snapshot.dataSource.mode === "live-webcam"}
                 onChange={(event) => setControls((current) => ({ ...current, obstructionPct: Number(event.target.value) }))}
               />
-              <small>{controls.obstructionPct}% restriction</small>
+              <small>
+                {controls.useLive && snapshot.dataSource.mode === "live-webcam"
+                  ? `${Math.round(snapshot.dataSource.liveObstructionPct ?? controls.obstructionPct)}% from live camera artifact`
+                  : `${controls.obstructionPct}% restriction`}
+              </small>
             </label>
 
             <label className="ops-field">
@@ -228,10 +281,13 @@ export function Dashboard() {
               <div className="ops-aisle-label south">Aisle south</div>
 
               {snapshot.racks.map((rack) => (
-                <div
+                <button
                   key={rack.id}
-                  className={`ops-rack ${rack.status}`}
+                  type="button"
+                  className={`ops-rack ${rack.status} ${selectedRack.id === rack.id ? "selected" : ""}`}
                   style={{ left: `${rack.position.x}%`, top: rack.aisle === "Aisle North" ? "24%" : "68%" }}
+                  onClick={() => setSelectedRackId(rack.id)}
+                  aria-pressed={selectedRack.id === rack.id}
                 >
                   <div className="ops-rack-top" />
                   <div className="ops-rack-face">
@@ -244,7 +300,7 @@ export function Dashboard() {
                     <small>{rack.metrics.temperatureC}°C</small>
                   </div>
                   <div className="ops-rack-shadow" />
-                </div>
+                </button>
               ))}
 
               <div className="ops-route-label thermal">Thermal path</div>
@@ -266,13 +322,68 @@ export function Dashboard() {
           <div className="ops-lower">
             <article className="ops-panel">
               <div className="ops-section-head">
-                <h2>Rack Health</h2>
-                <span>Modal score by rack</span>
+                <h2>Rack Detail</h2>
+                <span>Click any rack in the twin or list</span>
+              </div>
+
+              <div className="ops-detail-card">
+                <div className="ops-rack-card-head">
+                  <div>
+                    <strong>{selectedRack.name}</strong>
+                    <p>{selectedRack.issue ?? "Nominal"}</p>
+                  </div>
+                  <span className={`ops-badge ${selectedRack.status}`}>{selectedRack.status}</span>
+                </div>
+
+                <div className="ops-detail-grid">
+                  <div className="ops-detail-stat">
+                    <span>Aisle</span>
+                    <strong>{selectedRack.aisle}</strong>
+                  </div>
+                  <div className="ops-detail-stat">
+                    <span>Temperature</span>
+                    <strong>{selectedRack.metrics.temperatureC}°C</strong>
+                  </div>
+                  <div className="ops-detail-stat">
+                    <span>Confidence</span>
+                    <strong>{Math.round(selectedRack.metrics.confidence * 100)}%</strong>
+                  </div>
+                  <div className="ops-detail-stat">
+                    <span>Predicted window</span>
+                    <strong>{selectedRack.predictedFailureHours ? `${selectedRack.predictedFailureHours}h` : "Stable"}</strong>
+                  </div>
+                </div>
+
+                <div className="ops-modality-list">
+                  {modalityBars(selectedRack).map((item) => {
+                    const percentage = Math.round((item.inverse ? item.value : 1 - item.value) * 100);
+                    const Icon = item.icon;
+
+                    return (
+                      <div key={item.label} className="ops-metric-row">
+                        <label>
+                          <Icon size={14} />
+                          {item.label}
+                        </label>
+                        <div className="ops-metric-bar">
+                          <span style={{ width: `${percentage}%` }} />
+                        </div>
+                        <small>{percentage}%</small>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="ops-rack-list">
                 {snapshot.racks.map((rack) => (
-                  <div key={rack.id} className="ops-rack-card">
+                  <button
+                    key={rack.id}
+                    type="button"
+                    className={`ops-rack-card ${selectedRack.id === rack.id ? "selected" : ""}`}
+                    onClick={() => setSelectedRackId(rack.id)}
+                    aria-pressed={selectedRack.id === rack.id}
+                  >
                     <div className="ops-rack-card-head">
                       <div>
                         <strong>{rack.name}</strong>
@@ -281,26 +392,12 @@ export function Dashboard() {
                       <span className={`ops-badge ${rack.status}`}>{rack.status}</span>
                     </div>
 
-                    <div className="ops-modality-list">
-                      {modalityBars(rack).map((item) => {
-                        const percentage = Math.round((item.inverse ? item.value : 1 - item.value) * 100);
-                        const Icon = item.icon;
-
-                        return (
-                          <div key={item.label} className="ops-metric-row">
-                            <label>
-                              <Icon size={14} />
-                              {item.label}
-                            </label>
-                            <div className="ops-metric-bar">
-                              <span style={{ width: `${percentage}%` }} />
-                            </div>
-                            <small>{percentage}%</small>
-                          </div>
-                        );
-                      })}
+                    <div className="ops-rack-card-foot">
+                      <span>{rack.metrics.temperatureC}°C</span>
+                      <span>{Math.round(rack.metrics.confidence * 100)}% confidence</span>
+                      <span>{rack.predictedFailureHours ? `${rack.predictedFailureHours}h window` : "No active window"}</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </article>
@@ -326,11 +423,13 @@ export function Dashboard() {
                 ))}
               </div>
 
-              <div className="ops-panel-subhead">
+              <div className="ops-sync-note">
                 <AlertTriangle size={14} />
-                <span>Integration payload</span>
+                <p>
+                  HMAX sync is active for the current operator state. Work order content, rack priorities, and aisle risk
+                  update whenever the calibration inputs change.
+                </p>
               </div>
-              <pre className="ops-json">{JSON.stringify(snapshot.hmaxPayload, null, 2)}</pre>
             </article>
           </div>
         </section>

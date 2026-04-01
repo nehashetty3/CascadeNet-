@@ -1,0 +1,458 @@
+{
+  "observations": [
+    {
+      "rack_id": "rack-01",
+      "position_x": 10,
+      "aisle": "Aisle North",
+      "obstruction_pct": 4,
+      "thermal_c": 24.2,
+      "vibration_mm": 0.08,
+      "cable_risk": 0.08,
+      "audio_distress": 0.1
+    },
+    {
+      "rack_id": "rack-02",
+      "position_x": 22,
+      "aisle": "Aisle North",
+      "obstruction_pct": 7,
+      "thermal_c": 24.8,
+      "vibration_mm": 0.1,
+      "cable_risk": 0.1,
+      "audio_distress": 0.11
+    },
+    {
+      "rack_id": "rack-03",
+      "position_x": 34,
+      "aisle": "Aisle North",
+      "obstruction_pct": 12,
+      "thermal_c": 26.1,
+      "vibration_mm": 0.14,
+      "cable_risk": 0.3,
+      "audio_distress": 0.17
+    },
+    {
+      "rack_id": "rack-04",
+      "position_x": 46,
+      "aisle": "Aisle North",
+      "obstruction_pct": 40,
+      "thermal_c": 34.0,
+      "vibration_mm": 0.28,
+      "cable_risk": 0.12,
+      "audio_distress": 0.46
+    },
+    {
+      "rack_id": "rack-05",
+      "position_x": 58,
+      "aisle": "Aisle North",
+      "obstruction_pct": 18,
+      "thermal_c": 29.7,
+      "vibration_mm": 0.2,
+      "cable_risk": 0.16,
+      "audio_distress": 0.25
+    },
+    {
+      "rack_id": "rack-06",
+      "position_x": 70,
+      "aisle": "Aisle South",
+      "obstruction_pct": 8,
+      "thermal_c": 25.0,
+      "vibration_mm": 0.1,
+      "cable_risk": 0.11,
+      "audio_distress": 0.13
+    },
+    {
+      "rack_id": "rack-07",
+      "position_x": 82,
+      "aisle": "Aisle South",
+      "obstruction_pct": 14,
+      "thermal_c": 31.8,
+      "vibration_mm": 0.66,
+      "cable_risk": 0.21,
+      "audio_distress": 0.6
+    },
+    {
+      "rack_id": "rack-08",
+      "position_x": 94,
+      "aisle": "Aisle South",
+      "obstruction_pct": 10,
+      "thermal_c": 27.7,
+      "vibration_mm": 0.24,
+      "cable_risk": 0.39,
+      "audio_distress": 0.28
+    }
+  ],
+  "poses": [
+    {
+      "frame_id": 0,
+      "x": 0.0,
+      "y": 1.8,
+      "z": 1.55,
+      "yaw_deg": 4.0
+    },
+    {
+      "frame_id": 1,
+      "x": 0.35,
+      "y": 1.8066358453077367,
+      "z": 1.55,
+      "yaw_deg": 4.296884751105427
+    },
+    {
+      "frame_id": 2,
+      "x": 0.7,
+      "y": 1.813087787871846,
+      "z": 1.55,
+      "yaw_deg": 4.575310646325043
+    },
+    {
+      "frame_id": 3,
+      "x": 1.0499999999999998,
+      "y": 1.8191770215441683,
+      "z": 1.55,
+      "yaw_deg": 4.817966512028001
+    },
+    {
+      "frame_id": 4,
+      "x": 1.4,
+      "y": 1.8247347921227894,
+      "z": 1.55,
+      "yaw_deg": 5.009765181769476
+    },
+    {
+      "frame_id": 5,
+      "x": 1.75,
+      "y": 1.8296070741278416,
+      "z": 1.55,
+      "yaw_deg": 5.138781543226703
+    },
+    {
+      "frame_id": 6,
+      "x": 2.0999999999999996,
+      "y": 1.8336588393923159,
+      "z": 1.55,
+      "yaw_deg": 5.196993983924865
+    },
+    {
+      "frame_id": 7,
+      "x": 2.4499999999999997,
+      "y": 1.8367777991701502,
+      "z": 1.55,
+      "yaw_deg": 5.180783136248724
+    },
+    {
+      "frame_id": 8,
+      "x": 2.8,
+      "y": 1.8388775160545325,
+      "z": 1.55,
+      "yaw_deg": 5.091156912190818
+    },
+    {
+      "frame_id": 9,
+      "x": 3.15,
+      "y": 1.8398997994641622,
+      "z": 1.55,
+      "yaw_deg": 4.933687836265506
+    },
+    {
+      "frame_id": 10,
+      "x": 3.5,
+      "y": 1.8398163183100706,
+      "z": 1.55,
+      "yaw_deg": 4.718166572924748
+    },
+    {
+      "frame_id": 11,
+      "x": 3.8499999999999996,
+      "y": 1.8386293861503,
+      "z": 1.55,
+      "yaw_deg": 4.457993190462798
+    },
+    {
+      "frame_id": 12,
+      "x": 4.199999999999999,
+      "y": 1.8363718970730274,
+      "z": 1.55,
+      "yaw_deg": 4.169344009671841
+    },
+    {
+      "frame_id": 13,
+      "x": 4.55,
+      "y": 1.8331064140850384,
+      "z": 1.55,
+      "yaw_deg": 3.87016583856387
+    },
+    {
+      "frame_id": 14,
+      "x": 4.8999999999999995,
+      "y": 1.828923435269533,
+      "z": 1.55,
+      "yaw_deg": 3.579060126772456
+    },
+    {
+      "frame_id": 15,
+      "x": 5.25,
+      "y": 1.8239388857641583,
+      "z": 1.55,
+      "yaw_deg": 3.3141264175091876
+    },
+    {
+      "frame_id": 16,
+      "x": 5.6,
+      "y": 1.8182909050654326,
+      "z": 1.55,
+      "yaw_deg": 3.0918370056304862
+    },
+    {
+      "frame_id": 17,
+      "x": 5.949999999999999,
+      "y": 1.8121360186947142,
+      "z": 1.55,
+      "yaw_deg": 2.9260127701257
+    },
+    {
+      "frame_id": 18,
+      "x": 6.3,
+      "y": 1.8056448003223948,
+      "z": 1.55,
+      "yaw_deg": 2.826963858801884
+    },
+    {
+      "frame_id": 19,
+      "x": 6.6499999999999995,
+      "y": 1.7989971445681934,
+      "z": 1.55,
+      "yaw_deg": 2.8008486532295462
+    },
+    {
+      "frame_id": 20,
+      "x": 7.0,
+      "y": 1.7923772814849805,
+      "z": 1.55,
+      "yaw_deg": 2.849290870404234
+    },
+    {
+      "frame_id": 21,
+      "x": 7.35,
+      "y": 1.7859686708924152,
+      "z": 1.55,
+      "yaw_deg": 2.9692786078880897
+    },
+    {
+      "frame_id": 22,
+      "x": 7.699999999999999,
+      "y": 1.7799489180564663,
+      "z": 1.55,
+      "yaw_deg": 3.15335160931553
+    },
+    {
+      "frame_id": 23,
+      "x": 8.049999999999999,
+      "y": 1.774484851619326,
+      "z": 1.55,
+      "yaw_deg": 3.39006510700089
+    }
+  ],
+  "twin": [
+    {
+      "rack_id": "rack-01",
+      "x": 10,
+      "y": 0.0,
+      "z": 0.0,
+      "airflow_score": 0.9228,
+      "vibration_risk": 0.129,
+      "cable_risk": 0.080352,
+      "acoustic_risk": 0.10400000000000001,
+      "thermal_c": 24.2
+    },
+    {
+      "rack_id": "rack-02",
+      "x": 22,
+      "y": 0.0,
+      "z": 0.0,
+      "airflow_score": 0.8874,
+      "vibration_risk": 0.15450000000000003,
+      "cable_risk": 0.09964800000000001,
+      "acoustic_risk": 0.1168,
+      "thermal_c": 24.8
+    },
+    {
+      "rack_id": "rack-03",
+      "x": 34,
+      "y": 0.0,
+      "z": 0.0,
+      "airflow_score": 0.8284,
+      "vibration_risk": 0.22350000000000003,
+      "cable_risk": 0.290496,
+      "acoustic_risk": 0.1776,
+      "thermal_c": 26.1
+    },
+    {
+      "rack_id": "rack-04",
+      "x": 46,
+      "y": 0.0,
+      "z": 0.0,
+      "airflow_score": 0.498,
+      "vibration_risk": 0.5010000000000001,
+      "cable_risk": 0.136896,
+      "acoustic_risk": 0.4608,
+      "thermal_c": 34.0
+    },
+    {
+      "rack_id": "rack-05",
+      "x": 58,
+      "y": 0.0,
+      "z": 0.0,
+      "airflow_score": 0.7576,
+      "vibration_risk": 0.3225,
+      "cable_risk": 0.16334400000000002,
+      "acoustic_risk": 0.26,
+      "thermal_c": 29.7
+    },
+    {
+      "rack_id": "rack-06",
+      "x": 70,
+      "y": 1.0,
+      "z": 0.0,
+      "airflow_score": 0.8755999999999999,
+      "vibration_risk": 0.1635,
+      "cable_risk": 0.110088,
+      "acoustic_risk": 0.13440000000000002,
+      "thermal_c": 25.0
+    },
+    {
+      "rack_id": "rack-07",
+      "x": 82,
+      "y": 1.0,
+      "z": 0.0,
+      "airflow_score": 0.8048,
+      "vibration_risk": 0.9630000000000001,
+      "cable_risk": 0.228744,
+      "acoustic_risk": 0.66,
+      "thermal_c": 31.8
+    },
+    {
+      "rack_id": "rack-08",
+      "x": 94,
+      "y": 1.0,
+      "z": 0.0,
+      "airflow_score": 0.852,
+      "vibration_risk": 0.378,
+      "cable_risk": 0.38076,
+      "acoustic_risk": 0.29440000000000005,
+      "thermal_c": 27.7
+    }
+  ],
+  "edges": [
+    {
+      "source": "rack-04",
+      "target": "rack-07",
+      "edge_type": "thermal",
+      "weight": 0.78
+    },
+    {
+      "source": "rack-04",
+      "target": "rack-05",
+      "edge_type": "airflow",
+      "weight": 0.62
+    },
+    {
+      "source": "rack-07",
+      "target": "rack-08",
+      "edge_type": "power",
+      "weight": 0.57
+    },
+    {
+      "source": "rack-01",
+      "target": "rack-04",
+      "edge_type": "airflow",
+      "weight": 0.18
+    },
+    {
+      "source": "rack-02",
+      "target": "rack-04",
+      "edge_type": "airflow",
+      "weight": 0.18
+    },
+    {
+      "source": "rack-03",
+      "target": "rack-04",
+      "edge_type": "airflow",
+      "weight": 0.18
+    },
+    {
+      "source": "rack-07",
+      "target": "rack-06",
+      "edge_type": "thermal",
+      "weight": 0.16
+    }
+  ],
+  "predictions": [
+    {
+      "rack_id": "rack-07",
+      "risk_72h": 0.8337567199999999,
+      "explanation": "Base risk 0.53 plus spatial coupling 0.17 and thermal pressure 0.13."
+    },
+    {
+      "rack_id": "rack-04",
+      "risk_72h": 0.7306391466666666,
+      "explanation": "Base risk 0.45 plus spatial coupling 0.12 and thermal pressure 0.17."
+    },
+    {
+      "rack_id": "rack-05",
+      "risk_72h": 0.4914247199999999,
+      "explanation": "Base risk 0.26 plus spatial coupling 0.14 and thermal pressure 0.09."
+    },
+    {
+      "rack_id": "rack-08",
+      "risk_72h": 0.4665334666666666,
+      "explanation": "Base risk 0.28 plus spatial coupling 0.13 and thermal pressure 0.06."
+    },
+    {
+      "rack_id": "rack-03",
+      "risk_72h": 0.23894648000000002,
+      "explanation": "Base risk 0.20 plus spatial coupling 0.00 and thermal pressure 0.04."
+    },
+    {
+      "rack_id": "rack-06",
+      "risk_72h": 0.18833610666666672,
+      "explanation": "Base risk 0.14 plus spatial coupling 0.04 and thermal pressure 0.02."
+    }
+  ],
+  "actions": [
+    {
+      "rack_id": "rack-04",
+      "fan_delta_pct": 12.2,
+      "expected_kw_savings": 4.3,
+      "expected_temp_drop_c": 4.4
+    },
+    {
+      "rack_id": "rack-07",
+      "fan_delta_pct": 9.2,
+      "expected_kw_savings": 5.11,
+      "expected_temp_drop_c": 3.68
+    },
+    {
+      "rack_id": "rack-05",
+      "fan_delta_pct": 7.0,
+      "expected_kw_savings": 5.76,
+      "expected_temp_drop_c": 2.74
+    },
+    {
+      "rack_id": "rack-08",
+      "fan_delta_pct": 4.3,
+      "expected_kw_savings": 6.48,
+      "expected_temp_drop_c": 1.74
+    },
+    {
+      "rack_id": "rack-03",
+      "fan_delta_pct": 2.3,
+      "expected_kw_savings": 7.03,
+      "expected_temp_drop_c": 0.96
+    },
+    {
+      "rack_id": "rack-06",
+      "fan_delta_pct": 0.9,
+      "expected_kw_savings": 7.42,
+      "expected_temp_drop_c": 0.42
+    }
+  ]
+}

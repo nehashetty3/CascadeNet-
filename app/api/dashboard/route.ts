@@ -10,7 +10,13 @@ export async function GET(request: Request) {
       obstructionPct: searchParams.get("obstructionPct"),
       dependencyScale: searchParams.get("dependencyScale"),
       fanAssistPct: searchParams.get("fanAssistPct"),
-      maintenanceMode: searchParams.get("maintenanceMode")
-    })
+      maintenanceMode: searchParams.get("maintenanceMode"),
+      useLive: searchParams.get("useLive")
+    }),
+    {
+      headers: {
+        "Cache-Control": "no-store, max-age=0"
+      }
+    }
   );
 }

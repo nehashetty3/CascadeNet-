@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "capture:screenshots": "node scripts/capture-screenshots.mjs",
-    "render:mock-video": "node scripts/render-mock-video.mjs && python3 scripts/build_mock_gif.py"
+    "render:mock-video": "node scripts/render-mock-video.mjs && python3 scripts/build_mock_gif.py && python3 scripts/build_mock_mp4.py"
   },
   "dependencies": {
     "clsx": "^2.1.1",

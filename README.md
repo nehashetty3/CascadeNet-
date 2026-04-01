@@ -44,6 +44,31 @@ In the demo scenario, Rack 4 develops an airflow obstruction. That localized iss
 - TypeScript
 - App Router API routes
 - Playwright for screenshot generation
+- Python AI backend for CV, audio, SLAM, digital twin reconstruction, graph forecasting, and cooling optimization
+
+## AI backend
+
+The repo now includes a real backend scaffold in [`ai-backend/`](./ai-backend) for the concepts in the pitch:
+
+- computer vision
+- machine learning
+- audio models
+- SLAM
+- digital twin reconstruction
+- ST-GAT style graph prediction
+- PINN-style cooling optimization
+
+Run it with:
+
+```bash
+cd ai-backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+python3 -m cascadenet_ai.run_demo
+```
+
+Architecture notes are in [`docs/AI_ARCHITECTURE.md`](./docs/AI_ARCHITECTURE.md).
 
 ## Run locally
 
@@ -87,9 +112,10 @@ Recommended sequence:
 - `app/` routes, layout, global styles, API endpoints
 - `components/` dashboard UI
 - `lib/` seeded scenario data and simulation engine
+- `ai-backend/` research backend for CV/ML/audio/graph/physics modules
 - `docs/` judge-facing scripts and support material
 - `scripts/` utility scripts such as screenshot capture
 
 ## Notes
 
-This prototype is intentionally deterministic so it remains reliable during judging, screen recording, and GitHub review. The architecture is designed to expand into live CV ingestion, SLAM, graph inference, and enterprise integration without changing the product story.
+The frontend prototype is intentionally deterministic so it remains reliable during judging, screen recording, and GitHub review. The new `ai-backend/` package is where the repo now carries the ML/CV/physics concepts as executable code without forcing heavy native runtime dependencies into the presentation layer.

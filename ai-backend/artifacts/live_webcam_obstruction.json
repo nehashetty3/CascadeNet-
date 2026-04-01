@@ -1,0 +1,26 @@
+{
+  "rack_id": "rack-04",
+  "timestamp": "2026-04-02T02:17:31",
+  "camera_index": 0,
+  "source_type": "video",
+  "source_path": "/Users/neha/Documents/New project/ai-backend/artifacts/sample-rack-feed.mp4",
+  "roi": {
+    "x": 397,
+    "y": 238,
+    "width": 486,
+    "height": 244
+  },
+  "estimate": {
+    "obstruction_pct": 17.2,
+    "airflow_score": 0.794,
+    "confidence": 0.67,
+    "features": {
+      "brightness": 0.24389316814224848,
+      "edge_density": 0.0409077109896782,
+      "texture_std": 0.09608702913835063,
+      "motion_score": 0.0008769162390720303,
+      "darkness_ratio": 0.4290292113607232
+    }
+  },
+  "snapshot": "artifacts/live_webcam_frame.png"
+}

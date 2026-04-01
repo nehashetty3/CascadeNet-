@@ -1,5 +1,8 @@
 import { getScenarioEdges, getScenarioRacks, getScenarioTimeline, getScenarioZones } from "@/lib/demo-data";
+import fs from "node:fs";
+import path from "node:path";
 import type {
+  DashboardDataSource,
   DashboardSnapshot,
   DashboardStat,
   EventLogEntry,
@@ -21,6 +24,21 @@ export const defaultInputs: OperatorInputs = {
   maintenanceMode: "dispatch"
 };
 
+type DashboardQueryInputs = Partial<Record<keyof OperatorInputs, string | null>> & {
+  useLive?: string | null;
+};
+
+type LiveArtifact = {
+  rack_id: string;
+  timestamp: string;
+  camera_index: number;
+  estimate?: {
+    obstruction_pct?: number;
+    confidence?: number;
+    airflow_score?: number;
+  };
+};
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
@@ -39,7 +57,7 @@ function averageRisk(racks: RackNode[]): number {
   return Number(((total / racks.length) * 100).toFixed(1));
 }
 
-function deriveInputs(raw: Partial<Record<keyof OperatorInputs, string | null>>): OperatorInputs {
+function deriveInputs(raw: DashboardQueryInputs): OperatorInputs {
   const scenario = (raw.scenario as ScenarioId) || defaultInputs.scenario;
 
   return {
@@ -51,6 +69,21 @@ function deriveInputs(raw: Partial<Record<keyof OperatorInputs, string | null>>)
   };
 }
 
+function readLiveArtifact(): LiveArtifact | null {
+  const artifactPath = path.join(process.cwd(), "ai-backend", "artifacts", "live_webcam_obstruction.json");
+
+  try {
+    const raw = fs.readFileSync(artifactPath, "utf-8");
+    return JSON.parse(raw) as LiveArtifact;
+  } catch {
+    return null;
+  }
+}
+
+function shouldUseLiveArtifact(raw: DashboardQueryInputs) {
+  return raw.useLive !== "false";
+}
+
 function applyOperatorInputs(inputs: OperatorInputs, racks: RackNode[], edges: RackEdge[]) {
   const normalizedObstruction = inputs.obstructionPct / 100;
   const dependencyScale = inputs.dependencyScale;
@@ -59,6 +92,36 @@ function applyOperatorInputs(inputs: OperatorInputs, racks: RackNode[], edges: R
     inputs.maintenanceMode === "closed" ? 0.54 : inputs.maintenanceMode === "dispatch" ? 0.24 : 0;
 
   const nextRacks: RackNode[] = racks.map((rack): RackNode => {
+    const distanceFromRack4 = Math.abs(rack.position.x - 46) / 48;
+    const rowInfluence = clamp((1 - distanceFromRack4) * normalizedObstruction * dependencyScale, 0, 0.52);
+    const fanReduction = fanAssist * (0.16 + (1 - distanceFromRack4) * 0.22);
+    const maintenanceReduction = maintenanceRelief * (0.1 + (1 - distanceFromRack4) * 0.22);
+    const baselineTemperature = clamp(
+      rack.metrics.temperatureC + rowInfluence * 6 - fanReduction * 4 - maintenanceReduction * 5,
+      23,
+      38
+    );
+    const baselineAirflow = clamp(
+      rack.metrics.airflow - rowInfluence * 0.22 + fanReduction * 0.18 + maintenanceReduction * 0.14,
+      0.42,
+      0.97
+    );
+    const baselineVibration = clamp(
+      rack.metrics.vibration + rowInfluence * 0.12 - maintenanceReduction * 0.1,
+      0.08,
+      0.94
+    );
+    const baselineAcoustic = clamp(
+      rack.metrics.acoustic + rowInfluence * 0.11 - maintenanceReduction * 0.1,
+      0.08,
+      0.9
+    );
+    const baselineCable = clamp(
+      rack.metrics.cable + rowInfluence * 0.08 - maintenanceReduction * 0.06,
+      0.06,
+      0.82
+    );
+
     if (rack.id === "rack-04") {
       const airflow = clamp(0.92 - normalizedObstruction * 1.12 + fanAssist * 0.22 + maintenanceRelief * 0.34, 0.28, 0.96);
       const temperatureC = Math.round(clamp(24 + normalizedObstruction * 22 - fanAssist * 6 - maintenanceRelief * 9, 23, 38));
@@ -131,7 +194,27 @@ function applyOperatorInputs(inputs: OperatorInputs, racks: RackNode[], edges: R
       };
     }
 
-    return rack;
+    const generalizedStatus: RackStatus =
+      rowInfluence > 0.34 ? "watch" : rack.status === "watch" && rowInfluence < 0.16 ? "healthy" : rack.status;
+
+    return {
+      ...rack,
+      status: generalizedStatus,
+      issue:
+        generalizedStatus === "watch"
+          ? `Aisle response shifted by ${Math.round(rowInfluence * 100)}% from current dependency and cooling inputs`
+          : "Nominal under current control profile",
+      predictedFailureHours: generalizedStatus === "watch" ? 120 : undefined,
+      metrics: {
+        ...rack.metrics,
+        airflow: baselineAirflow,
+        vibration: baselineVibration,
+        cable: baselineCable,
+        acoustic: baselineAcoustic,
+        temperatureC: Math.round(baselineTemperature),
+        confidence: clamp(rack.metrics.confidence - rowInfluence * 0.04 + maintenanceReduction * 0.06, 0.84, 0.99)
+      }
+    };
   });
 
   const nextEdges: RackEdge[] = edges.map((edge): RackEdge => {
@@ -151,7 +234,12 @@ function applyOperatorInputs(inputs: OperatorInputs, racks: RackNode[], edges: R
   return { racks: nextRacks, edges: nextEdges };
 }
 
-function buildStats(inputs: OperatorInputs, racks: RackNode[], workOrders: WorkOrder[]): DashboardStat[] {
+function buildStats(
+  inputs: OperatorInputs,
+  racks: RackNode[],
+  workOrders: WorkOrder[],
+  dataSource: DashboardDataSource
+): DashboardStat[] {
   const avgRisk = averageRisk(racks);
   const openOrders = workOrders.filter((order) => order.priority !== "P3").length;
   const downtime = Math.round(avgRisk * 2900);
@@ -161,7 +249,14 @@ function buildStats(inputs: OperatorInputs, racks: RackNode[], workOrders: WorkO
     { label: "Cascade Risk", value: `${Math.round(avgRisk)}%`, change: inputs.maintenanceMode === "closed" ? "Risk reduced after closure" : "Computed from active rack couplings" },
     { label: "Downtime Exposure", value: `$${downtime.toLocaleString()}`, change: "Estimated from current propagation path" },
     { label: "Cooling Adjustment", value: `${coolingKw} kW`, change: `Fan assist set to ${inputs.fanAssistPct}%` },
-    { label: "Open Orders", value: String(openOrders), change: `${inputs.maintenanceMode === "dispatch" ? "Dispatch workflow active" : "Operations state synchronized"}` }
+    {
+      label: dataSource.mode === "live-webcam" ? "Sensor Feed" : "Open Orders",
+      value: dataSource.mode === "live-webcam" ? "Live" : String(openOrders),
+      change:
+        dataSource.mode === "live-webcam"
+          ? `Camera ${dataSource.cameraIndex ?? 0} | ${Math.round(dataSource.liveConfidence ?? 0)}% confidence`
+          : `${inputs.maintenanceMode === "dispatch" ? "Dispatch workflow active" : "Operations state synchronized"}`
+    }
   ];
 }
 
@@ -211,21 +306,29 @@ function buildWorkOrders(inputs: OperatorInputs, racks: RackNode[]): WorkOrder[]
   ];
 }
 
-function buildHeadline(inputs: OperatorInputs, racks: RackNode[]): Pick<DashboardSnapshot, "headline" | "summary"> {
+function buildHeadline(
+  inputs: OperatorInputs,
+  racks: RackNode[],
+  dataSource: DashboardDataSource
+): Pick<DashboardSnapshot, "headline" | "summary"> {
   const rack7 = racks.find((rack) => rack.id === "rack-07");
   const rack4 = racks.find((rack) => rack.id === "rack-04");
+  const sourcePrefix = dataSource.mode === "live-webcam" ? "Live camera feed active. " : "";
 
   if (inputs.maintenanceMode === "closed") {
     return {
-      headline: "Incident closed. Digital twin confirms the aisle is stable.",
+      headline: `${sourcePrefix}Incident closed. Digital twin confirms the aisle is stable.`,
       summary: "Operator controls, route analytics, and maintenance closure are aligned. The system has retained the verified fix in the active operating picture."
     };
   }
 
   if (rack7?.status === "critical") {
     return {
-      headline: "Rack 4 is driving a cross-rack risk condition toward Rack 7.",
-      summary: "The current obstruction level and dependency weighting produce a failure path that operations should address immediately."
+      headline: `${sourcePrefix}Rack 4 is driving a cross-rack risk condition toward Rack 7.`,
+      summary:
+        dataSource.mode === "live-webcam"
+          ? "The live webcam obstruction reading is now driving the upstream intake condition and downstream failure path."
+          : "The current obstruction level and dependency weighting produce a failure path that operations should address immediately."
     };
   }
 
@@ -246,6 +349,7 @@ function buildEventLog(inputs: OperatorInputs, racks: RackNode[], edges: RackEdg
   const rack4 = racks.find((rack) => rack.id === "rack-04");
   const rack7 = racks.find((rack) => rack.id === "rack-07");
   const thermal = edges.find((edge) => edge.type === "thermal");
+  const watchedRacks = racks.filter((rack) => rack.status !== "healthy");
 
   return [
     {
@@ -280,6 +384,13 @@ function buildEventLog(inputs: OperatorInputs, racks: RackNode[], edges: RackEdg
           : inputs.maintenanceMode === "dispatch"
             ? "Dispatch workflow active with temporary fan assist applied."
             : "Observation mode active. No dispatch confirmed yet."
+    },
+    {
+      id: "evt-005",
+      time: "21:24:43",
+      severity: watchedRacks.length > 3 ? "warning" : "info",
+      source: "Twin Model",
+      message: `${watchedRacks.length} racks currently show non-nominal behavior under the active calibration set.`
     }
   ];
 }
@@ -303,21 +414,50 @@ function buildPayload(inputs: OperatorInputs, racks: RackNode[], workOrders: Wor
   };
 }
 
-export function getDashboardSnapshot(rawInputs?: Partial<Record<keyof OperatorInputs, string | null>>): DashboardSnapshot {
-  const inputs = deriveInputs(rawInputs ?? {});
+export function getDashboardSnapshot(rawInputs?: DashboardQueryInputs): DashboardSnapshot {
+  const requestedInputs = deriveInputs(rawInputs ?? {});
+  const liveArtifact = shouldUseLiveArtifact(rawInputs ?? {}) ? readLiveArtifact() : null;
+  const inputs: OperatorInputs = liveArtifact
+    ? {
+        ...requestedInputs,
+        obstructionPct: clamp(Number(liveArtifact.estimate?.obstruction_pct ?? requestedInputs.obstructionPct), 0, 60)
+      }
+    : requestedInputs;
   const baseRacks = getScenarioRacks(inputs.scenario);
   const baseEdges = getScenarioEdges(inputs.scenario);
   const zones = getScenarioZones(inputs.scenario);
   const timeline = getScenarioTimeline(inputs.scenario);
   const { racks, edges } = applyOperatorInputs(inputs, baseRacks, baseEdges);
   const workOrders = buildWorkOrders(inputs, racks);
-  const stats = buildStats(inputs, racks, workOrders);
+  const dataSource: DashboardDataSource = liveArtifact
+    ? {
+        mode: "live-webcam",
+        artifactUpdatedAt: liveArtifact.timestamp,
+        liveRackId: liveArtifact.rack_id,
+        liveObstructionPct: clamp(Number(liveArtifact.estimate?.obstruction_pct ?? inputs.obstructionPct), 0, 100),
+        liveConfidence: clamp(Number(liveArtifact.estimate?.confidence ?? 0), 0, 1),
+        cameraIndex: liveArtifact.camera_index
+      }
+    : { mode: "simulated" };
+  const stats = buildStats(inputs, racks, workOrders, dataSource);
   const eventLog = buildEventLog(inputs, racks, edges);
-  const { headline, summary } = buildHeadline(inputs, racks);
+  if (liveArtifact) {
+    eventLog.unshift({
+      id: "evt-live-000",
+      time: liveArtifact.timestamp.split("T")[1] ?? liveArtifact.timestamp,
+      severity: "success",
+      source: "Live Camera",
+      message: `Using saved webcam artifact for ${liveArtifact.rack_id} at ${Math.round(
+        Number(liveArtifact.estimate?.obstruction_pct ?? 0)
+      )}% obstruction with ${Math.round(Number(liveArtifact.estimate?.confidence ?? 0) * 100)}% confidence.`
+    });
+  }
+  const { headline, summary } = buildHeadline(inputs, racks, dataSource);
 
   return {
     scenario: inputs.scenario,
     inputs,
+    dataSource,
     headline,
     summary,
     racks,

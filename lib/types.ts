@@ -77,9 +77,19 @@ export type EventLogEntry = {
   message: string;
 };
 
+export type DashboardDataSource = {
+  mode: "simulated" | "live-webcam";
+  artifactUpdatedAt?: string;
+  liveRackId?: string;
+  liveObstructionPct?: number;
+  liveConfidence?: number;
+  cameraIndex?: number;
+};
+
 export type DashboardSnapshot = {
   scenario: ScenarioId;
   inputs: OperatorInputs;
+  dataSource: DashboardDataSource;
   headline: string;
   summary: string;
   racks: RackNode[];

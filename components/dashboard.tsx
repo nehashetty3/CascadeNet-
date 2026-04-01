@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, ArrowRight, AudioLines, Cable, Fan, Move3D } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowRight,
+  AudioLines,
+  Cable,
+  Fan,
+  Move3D,
+  Orbit,
+  Sparkles
+} from "lucide-react";
 import type { DashboardSnapshot, RackNode, ScenarioId } from "@/lib/types";
 
 const scenarios: { id: ScenarioId; label: string; blurb: string }[] = [
@@ -48,73 +57,99 @@ export function Dashboard() {
   }, [scenario]);
 
   if (!snapshot && loading) {
-    return <div className="shell"><div className="hero-card">Loading RackSentinel...</div></div>;
+    return <div className="shell"><div className="hero-card">Loading CascadeNet...</div></div>;
   }
 
   if (!snapshot) {
     return <div className="shell"><div className="hero-card">Unable to load dashboard snapshot.</div></div>;
   }
 
+  const primaryOrder = snapshot.workOrders[0];
+  const secondaryOrders = snapshot.workOrders.slice(1);
+
   return (
     <main className="shell">
-      <section className="hero-card">
-        <div className="eyebrow">HMAX RackSentinel</div>
-        <div className="hero-grid">
-          <div>
+      <section className="hero-card hero-stage">
+        <div className="hero-frame">
+          <div className="hero-copy-column">
+            <div className="eyebrow">CascadeNet / HMAX RackSentinel</div>
+            <div className="hero-kicker">
+              <span>Cross-rack foresight for data halls</span>
+              <span>{snapshot.scenario === "cascade" ? "72h event horizon" : "Continuously calibrated twin"}</span>
+            </div>
             <h1>{snapshot.headline}</h1>
             <p className="hero-copy">{snapshot.summary}</p>
-            <div className="scenario-switch">
-              {scenarios.map((item) => (
+
+            <div className="scenario-rail">
+              {scenarios.map((item, index) => (
                 <button
                   key={item.id}
                   className={item.id === scenario ? "scenario-pill active" : "scenario-pill"}
                   onClick={() => setScenario(item.id)}
                   type="button"
                 >
-                  <span>{item.label}</span>
-                  <small>{item.blurb}</small>
+                  <span className="scenario-index">0{index + 1}</span>
+                  <div>
+                    <span>{item.label}</span>
+                    <small>{item.blurb}</small>
+                  </div>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="hero-side">
-            <div className="signal-card">
-              <span>Live Twin Status</span>
-              <strong>99% pose lock</strong>
-              <small>30 fps stereo reconstruction with silent refresh under 30 seconds.</small>
+          <div className="hero-aside">
+            <div className="hero-marquee">
+              <div className="marquee-topline">
+                <Orbit size={15} />
+                <span>Live operational composition</span>
+              </div>
+              <div className="marquee-grid">
+                {snapshot.stats.map((stat) => (
+                  <div key={stat.label} className="marquee-stat">
+                    <small>{stat.label}</small>
+                    <strong>{stat.value}</strong>
+                    <span>{stat.change}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="signal-card">
-              <span>Decision Layer</span>
-              <strong>{snapshot.scenario === "cascade" ? "Priority intervention" : "Stable autonomy"}</strong>
-              <small>Physics, vision residuals, and graph attention aligned.</small>
+
+            <div className="signal-stack">
+              <div className="signal-card luminous">
+                <span>Live Twin Status</span>
+                <strong>99% pose lock</strong>
+                <small>30 fps stereo reconstruction with silent refresh under 30 seconds.</small>
+              </div>
+              <div className="signal-card">
+                <span>Decision Layer</span>
+                <strong>{snapshot.scenario === "cascade" ? "Priority intervention" : "Stable autonomy"}</strong>
+                <small>Physics, vision residuals, and graph attention aligned.</small>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="stats-grid">
-        {snapshot.stats.map((stat) => (
-          <article key={stat.label} className="panel stat-card">
-            <span>{stat.label}</span>
-            <strong>{stat.value}</strong>
-            <small>{stat.change}</small>
-          </article>
-        ))}
-      </section>
-
-      <section className="content-grid">
-        <article className="panel">
-          <div className="panel-head">
-            <h2>Live Aisle Twin</h2>
-            <span>3D without CAD</span>
+      <section className="experience-grid">
+        <article className="panel twin-panel">
+          <div className="panel-head stage-head">
+            <div>
+              <span className="section-label">Spatial model</span>
+              <h2>Live aisle twin</h2>
+            </div>
+            <div className="head-note">3D without CAD</div>
           </div>
+
           <div className="twin-map">
+            <div className="twin-overlay twin-overlay-north">Aisle north</div>
+            <div className="twin-overlay twin-overlay-south">Aisle south</div>
+
             {snapshot.racks.map((rack) => (
               <div
                 key={rack.id}
                 className={`rack-node ${rack.status}`}
-                style={{ left: `${rack.position.x}%`, top: rack.aisle === "Aisle North" ? "26%" : "66%" }}
+                style={{ left: `${rack.position.x}%`, top: rack.aisle === "Aisle North" ? "24%" : "68%" }}
               >
                 <b>{rack.name}</b>
                 <small>{rack.metrics.temperatureC}°C</small>
@@ -127,7 +162,7 @@ export function Dashboard() {
                 className={`edge edge-${edge.type}`}
                 style={{
                   left: edge.source === "rack-04" ? "46%" : "82%",
-                  top: edge.target === "rack-07" ? "39%" : edge.target === "rack-08" ? "69%" : "29%",
+                  top: edge.target === "rack-07" ? "39%" : edge.target === "rack-08" ? "71%" : "27%",
                   width: `${Math.max(edge.weight * 24, 8)}%`
                 }}
               >
@@ -136,9 +171,11 @@ export function Dashboard() {
               </div>
             ))}
           </div>
-          <div className="zone-grid">
+
+          <div className="zone-ribbon">
             {snapshot.zones.map((zone) => (
               <div key={zone.id} className="zone-card">
+                <small>Zone</small>
                 <strong>{zone.label}</strong>
                 <span>Occupancy {Math.round(zone.occupancy * 100)}%</span>
                 <span>Thermal shadow {Math.round(zone.thermalShadow * 100)}%</span>
@@ -147,52 +184,102 @@ export function Dashboard() {
           </div>
         </article>
 
-        <article className="panel">
-          <div className="panel-head">
-            <h2>Quad-Modal Rack Health</h2>
-            <span>Airflow, vibration, cable, acoustic</span>
-          </div>
-          <div className="rack-list">
-            {snapshot.racks.map((rack) => (
-              <div key={rack.id} className="rack-card">
-                <div className="rack-header">
-                  <div>
-                    <strong>{rack.name}</strong>
-                    <p>{rack.issue ?? "Nominal"}</p>
-                  </div>
-                  <div className={`status-badge ${rack.status}`}>{rack.status}</div>
+        <aside className="control-column">
+          <article className="panel incident-panel">
+            <div className="panel-head stage-head">
+              <div>
+                <span className="section-label">Command brief</span>
+                <h2>Incident composition</h2>
+              </div>
+              <Sparkles size={16} />
+            </div>
+
+            <div className="incident-card">
+              <span className={`priority ${primaryOrder.priority.toLowerCase()}`}>{primaryOrder.priority}</span>
+              <strong>{primaryOrder.title}</strong>
+              <p>{primaryOrder.action}</p>
+              <div className="incident-meta">
+                <div>
+                  <small>Impact</small>
+                  <span>{primaryOrder.impact}</span>
                 </div>
-                <div className="modality-list">
-                  {modalityBars(rack).map((item) => {
-                    const percentage = Math.round((item.inverse ? item.value : 1 - item.value) * 100);
-                    const Icon = item.icon;
-                    return (
-                      <div key={item.label} className="metric-row">
-                        <label>
-                          <Icon size={14} />
-                          {item.label}
-                        </label>
-                        <div className="metric-bar">
-                          <span style={{ width: `${percentage}%` }} />
-                        </div>
-                        <small>{percentage}% risk</small>
-                      </div>
-                    );
-                  })}
+                <div>
+                  <small>ROI</small>
+                  <span>{primaryOrder.roi}</span>
+                </div>
+                <div>
+                  <small>Confidence</small>
+                  <span>{Math.round(primaryOrder.confidence * 100)}%</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </article>
+            </div>
+
+            <div className="incident-support">
+              {secondaryOrders.map((order) => (
+                <div key={order.id} className="support-card">
+                  <span>{order.title}</span>
+                  <small>{order.sustainability}</small>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="panel">
+            <div className="panel-head stage-head">
+              <div>
+                <span className="section-label">Quad-modal sensing</span>
+                <h2>Rack health</h2>
+              </div>
+              <div className="head-note">Airflow, vibration, cable, acoustic</div>
+            </div>
+
+            <div className="rack-list">
+              {snapshot.racks.map((rack) => (
+                <div key={rack.id} className="rack-card">
+                  <div className="rack-header">
+                    <div>
+                      <strong>{rack.name}</strong>
+                      <p>{rack.issue ?? "Nominal"}</p>
+                    </div>
+                    <div className={`status-badge ${rack.status}`}>{rack.status}</div>
+                  </div>
+                  <div className="modality-list">
+                    {modalityBars(rack).map((item) => {
+                      const percentage = Math.round((item.inverse ? item.value : 1 - item.value) * 100);
+                      const Icon = item.icon;
+
+                      return (
+                        <div key={item.label} className="metric-row">
+                          <label>
+                            <Icon size={14} />
+                            {item.label}
+                          </label>
+                          <div className="metric-bar">
+                            <span style={{ width: `${percentage}%` }} />
+                          </div>
+                          <small>{percentage}% risk</small>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        </aside>
       </section>
 
-      <section className="content-grid lower">
-        <article className="panel">
-          <div className="panel-head">
-            <h2>HMAX Work Orders</h2>
-            <span>Prioritized, ROI-aware, ready to sync</span>
+      <section className="bottom-band">
+        <article className="panel order-panel">
+          <div className="panel-head stage-head">
+            <div>
+              <span className="section-label">Action queue</span>
+              <h2>HMAX work orders</h2>
+            </div>
+            <div className="head-note">Prioritized, ROI-aware, ready to sync</div>
           </div>
-          <div className="order-list">
+
+          <div className="order-list editorial-orders">
             {snapshot.workOrders.map((order) => (
               <div key={order.id} className="order-card">
                 <div className="order-top">
@@ -203,19 +290,25 @@ export function Dashboard() {
                   <span>{Math.round(order.confidence * 100)}% confidence</span>
                 </div>
                 <p>{order.action}</p>
-                <small>{order.impact}</small>
-                <small>{order.roi}</small>
-                <small>{order.sustainability}</small>
+                <div className="order-meta-grid">
+                  <small>{order.impact}</small>
+                  <small>{order.roi}</small>
+                  <small>{order.sustainability}</small>
+                </div>
               </div>
             ))}
           </div>
         </article>
 
-        <article className="panel">
-          <div className="panel-head">
-            <h2>Decision Loop</h2>
-            <span>From anomaly to verified closure</span>
+        <article className="panel loop-panel">
+          <div className="panel-head stage-head">
+            <div>
+              <span className="section-label">Verification loop</span>
+              <h2>Decision trace</h2>
+            </div>
+            <div className="head-note">From anomaly to verified closure</div>
           </div>
+
           <div className="timeline">
             {snapshot.timeline.map((event) => (
               <div key={event.minute} className="timeline-item">
@@ -227,6 +320,7 @@ export function Dashboard() {
               </div>
             ))}
           </div>
+
           <div className="payload-card">
             <div className="payload-head">
               <AlertCircle size={16} />

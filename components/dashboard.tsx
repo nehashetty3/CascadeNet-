@@ -56,6 +56,50 @@ function TwinLinework() {
   );
 }
 
+function RouteOverlay({ scenario }: { scenario: ScenarioId }) {
+  const opacity = scenario === "cascade" ? 1 : scenario === "resolved" ? 0.45 : 0.3;
+
+  return (
+    <svg className="route-overlay" viewBox="0 0 1200 640" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="thermalRoute" x1="0%" x2="100%" y1="0%" y2="0%">
+          <stop offset="0%" stopColor="rgba(221,158,110,0.12)" />
+          <stop offset="35%" stopColor="rgba(221,158,110,0.86)" />
+          <stop offset="100%" stopColor="rgba(245,218,179,0.06)" />
+        </linearGradient>
+        <linearGradient id="powerRoute" x1="0%" x2="100%" y1="0%" y2="0%">
+          <stop offset="0%" stopColor="rgba(157,169,213,0.12)" />
+          <stop offset="50%" stopColor="rgba(157,169,213,0.7)" />
+          <stop offset="100%" stopColor="rgba(201,196,223,0.06)" />
+        </linearGradient>
+        <filter id="routeGlow">
+          <feGaussianBlur stdDeviation="7" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <g opacity={opacity}>
+        <path className="route-shadow" d="M464 156C544 166 640 194 744 252C808 288 850 326 884 386" />
+        <path className="route-shadow" d="M464 164C540 240 616 294 760 338" />
+        <path className="route-shadow power" d="M884 418C936 452 1000 482 1088 506" />
+
+        <path className="route-main thermal" d="M464 156C544 166 640 194 744 252C808 288 850 326 884 386" />
+        <path className="route-main airflow" d="M464 164C540 240 616 294 760 338" />
+        <path className="route-main power" d="M884 418C936 452 1000 482 1088 506" />
+
+        <g filter="url(#routeGlow)">
+          <circle className="route-beacon" cx="464" cy="160" r="5" />
+          <circle className="route-beacon" cx="744" cy="252" r="4" />
+          <circle className="route-beacon" cx="884" cy="386" r="5" />
+        </g>
+      </g>
+    </svg>
+  );
+}
+
 export function Dashboard() {
   const [scenario, setScenario] = useState<ScenarioId>("cascade");
   const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
@@ -172,8 +216,11 @@ export function Dashboard() {
 
           <div className="twin-map">
             <TwinLinework />
+            <RouteOverlay scenario={snapshot.scenario} />
             <div className="twin-pulse twin-pulse-a" />
             <div className="twin-pulse twin-pulse-b" />
+            <div className="lane-shadow lane-shadow-north" />
+            <div className="lane-shadow lane-shadow-south" />
             <div className="twin-overlay twin-overlay-north">Aisle north</div>
             <div className="twin-overlay twin-overlay-south">Aisle south</div>
 
@@ -183,25 +230,23 @@ export function Dashboard() {
                 className={`rack-node ${rack.status}`}
                 style={{ left: `${rack.position.x}%`, top: rack.aisle === "Aisle North" ? "24%" : "68%" }}
               >
-                <b>{rack.name}</b>
-                <small>{rack.metrics.temperatureC}°C</small>
+                <div className="rack-topline" />
+                <div className="rack-face">
+                  <span className="rack-id">{rack.name}</span>
+                  <div className="rack-slots">
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+                  <small>{rack.metrics.temperatureC}°C</small>
+                </div>
+                <div className="rack-footprint" />
               </div>
             ))}
 
-            {snapshot.edges.map((edge) => (
-              <div
-                key={`${edge.source}-${edge.target}`}
-                className={`edge edge-${edge.type}`}
-                style={{
-                  left: edge.source === "rack-04" ? "46%" : "82%",
-                  top: edge.target === "rack-07" ? "39%" : edge.target === "rack-08" ? "71%" : "27%",
-                  width: `${Math.max(edge.weight * 24, 8)}%`
-                }}
-              >
-                <span>{edge.type}</span>
-                <small>{Math.round(edge.weight * 100)}%</small>
-              </div>
-            ))}
+            <div className="route-tag route-tag-thermal">Thermal cascade 73%</div>
+            <div className="route-tag route-tag-airflow">Airflow coupling 66%</div>
+            <div className="route-tag route-tag-power">Power branch 58%</div>
           </div>
 
           <div className="zone-ribbon">

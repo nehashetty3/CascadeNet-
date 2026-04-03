@@ -1,38 +1,38 @@
 # CascadeNet
 
-CascadeNet is a data center operations prototype for predicting cross-rack cascading failures before they become downtime. It combines a digital twin interface, multi-modal rack health sensing, dependency-aware risk propagation, and maintenance recommendations in a presentation-ready control console.
+**CascadeNet is a multi-modal data center operations prototype that predicts cross-rack cascading failures before they become downtime.**  
+It combines a digital twin control console, live CV artifact ingestion, graph-based risk propagation, and HMAX-style maintenance actions in a system designed to feel like an operator product, not just a model demo.
 
-This repo now includes both:
+![CascadeNet Dashboard](./public/screenshots/dashboard-cascade.png)
 
-- a production-style `Next.js` operator dashboard
-- a Python `ai-backend` that implements the core CV/ML/audio/graph/physics concepts from the pitch
+## Why This Project Matters
 
-## One-Minute Pitch
+Most monitoring stacks tell operators that a rack is already hot, noisy, or unstable.
 
-Traditional monitoring tools alert on isolated symptoms. CascadeNet models the aisle as an interconnected system.
+CascadeNet asks a higher-value question:
 
-In the core demo flow:
+**What fails next, why does it fail next, and what intervention prevents the cascade?**
 
-1. Rack 4 develops an intake obstruction.
-2. The twin shows thermal and airflow coupling across the row.
-3. Rack 7 becomes a downstream failure risk.
-4. CascadeNet generates an intervention path before the failure window lands.
+That shift matters in data centers, because costly outages often emerge from dependencies across airflow, thermal spill, vibration, and shared power infrastructure, not from one isolated metric crossing a threshold.
 
-The point is not just to show that a rack is unhealthy. The point is to show what fails next, why it fails next, and what action prevents the cascade.
+## What CascadeNet Does
 
-## Why This Stands Out
+- models a row of racks as an interconnected physical system
+- visualizes the aisle as a digital twin instead of a flat dashboard
+- tracks multi-modal rack health across airflow, vibration, cable, and acoustic signals
+- predicts downstream risk propagation rather than only local anomalies
+- converts risk into action through prioritized maintenance recommendations
+- supports both deterministic demo mode and live CV artifact-driven mode
 
-- Cross-rack reasoning instead of isolated rack alerts
-- Operator-facing digital twin instead of raw telemetry tables
-- Multi-modal sensing story across airflow, vibration, cable, and acoustic risk
-- Live artifact bridge from a real CV pipeline into the web dashboard
-- Clear enterprise story through HMAX-style work orders, ROI framing, and deployable web UX
 
-## What Is In This Repo
 
-### 1. Web application
+## System Overview
 
-The web app is a serious operations console built with:
+CascadeNet is built in two layers.
+
+### 1. Operator Console
+
+The web app is a polished control-room interface built with:
 
 - `Next.js 15`
 - `React 19`
@@ -40,16 +40,20 @@ The web app is a serious operations console built with:
 - App Router API routes
 - custom CSS
 
-Key files:
+It handles:
 
-- [Dashboard UI](/Users/neha/Documents/New%20project/components/dashboard.tsx)
-- [Dashboard API route](/Users/neha/Documents/New%20project/app/api/dashboard/route.ts)
-- [Simulation and live-artifact bridge](/Users/neha/Documents/New%20project/lib/engine.ts)
-- [Shared frontend types](/Users/neha/Documents/New%20project/lib/types.ts)
+- digital twin visualization
+- operator controls
+- event logs
+- rack inspection views
+- work orders
+- live artifact display logic
 
-### 2. AI backend
 
-The Python backend under [ai-backend](/Users/neha/Documents/New%20project/ai-backend/README.md) provides executable scaffolding for:
+
+### 2. AI Backend
+
+The Python backend under `ai-backend/` contains executable scaffolding for:
 
 - computer vision
 - machine learning
@@ -59,50 +63,94 @@ The Python backend under [ai-backend](/Users/neha/Documents/New%20project/ai-bac
 - ST-GAT-style graph forecasting
 - PINN-style cooling optimization
 
-Key backend files:
+Architecture notes:
 
-- [Vision pipeline](/Users/neha/Documents/New%20project/ai-backend/cascadenet_ai/pipelines/vision.py)
-- [Live webcam or video obstruction path](/Users/neha/Documents/New%20project/ai-backend/cascadenet_ai/live_webcam.py)
-- [Twin reconstruction](/Users/neha/Documents/New%20project/ai-backend/cascadenet_ai/pipelines/digital_twin.py)
-- [Graph forecasting](/Users/neha/Documents/New%20project/ai-backend/cascadenet_ai/models/st_gat.py)
-- [Cooling optimization](/Users/neha/Documents/New%20project/ai-backend/cascadenet_ai/models/pinn.py)
-- [End-to-end backend runner](/Users/neha/Documents/New%20project/ai-backend/cascadenet_ai/run_demo.py)
+- `docs/AI_ARCHITECTURE.md`
 
-Architecture notes are in [AI_ARCHITECTURE.md](/Users/neha/Documents/New%20project/docs/AI_ARCHITECTURE.md).
+## Product Flow
 
-## Demo Modes
+The UI is intentionally organized around operator decision-making.
 
-### Simulated console mode
+### Header
 
-The dashboard can run as a deterministic scenario engine for judging and screen recording.
+The top section summarizes the current operational state with business-facing KPIs such as cascade risk, downtime exposure, cooling adjustment, and current source mode.
 
-### Live CV artifact mode
+### Operator Inputs
 
-The dashboard can also ingest a saved obstruction artifact from the Python pipeline. That means the UI can reflect real file-based CV output instead of only seeded values.
+The left control panel lets the user:
+
+- switch between baseline, cascade, and resolved operating states
+- tune dependency scale and fan assist
+- choose between simulated mode and live CV artifact mode
+
+### Active Event Log
+
+This converts model state into operationally readable narrative: airflow restriction, route changes, downstream bearing stress, and workflow status.
+
+### Digital Twin
+
+The twin renders racks as physical nodes and overlays airflow, thermal, and power coupling paths so the user can see why risk is propagating through the aisle.
+
+### Rack Detail
+
+Selecting a rack surfaces:
+
+- location
+- temperature
+- confidence
+- failure window
+- modality-level health bars
+
+### Work Orders
+
+The system does not stop at detection. It outputs maintenance recommendations with operational impact, ROI, and sustainability framing.
+
+## Live CV Artifact Mode
+
+CascadeNet is not limited to seeded UI states.
+
+The dashboard can ingest a saved obstruction artifact from the Python backend. That means the web app can reflect real CV-derived obstruction values rather than only a hard-coded demo scenario.
+
+Supported sources:
+
+- live webcam feed
+- prerecorded rack/server video
 
 ## Screenshots
 
-### Cascade risk
+### Cascade Response
 
-![Cascade risk dashboard](./public/screenshots/dashboard-cascade.png)
+![Cascade Response](./public/screenshots/dashboard-cascade.png)
 
-### Baseline
+### Baseline State
 
-![Baseline dashboard](./public/screenshots/dashboard-baseline.png)
+![Baseline State](./public/screenshots/dashboard-baseline.png)
 
-### Resolved state
+### Resolved State
 
-![Resolved dashboard](./public/screenshots/dashboard-resolved.png)
+![Resolved State](./public/screenshots/dashboard-resolved.png)
 
 
-## Project Structure
 
-- `app/`: routes, layout, styles, and API endpoints
-- `components/`: main dashboard UI
-- `lib/`: scenario engine and live-artifact integration
-- `ai-backend/`: CV/ML/audio/graph/physics backend
-- `docs/`: demo and architecture notes
-- `scripts/`: video and screenshot utilities
-- `public/`: screenshots and demo media
+## Measured Obstruction Detector Results
+
+The current obstruction detector has a synthetic evaluation pipeline so the repo includes measurable results, not just architecture claims.
+
+Latest synthetic benchmark results:
+
+- `MAE`: `0.47%`
+- `RMSE`: `0.62%`
+- `MAPE`: `2.12%`
+- `3-class accuracy`: `100%`
+- `Threshold accuracy at 15% obstruction`: `100%`
+- `Average confidence`: `74.87%`
+
+Benchmark artifact:
+
+- `ai-backend/artifacts/obstruction_evaluation.json`
+
+Important note:
+
+These numbers are for the current synthetic benchmark are as calibrated prototype metrics, not production-validated real-world accuracy.
 
 

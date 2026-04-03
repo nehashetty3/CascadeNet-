@@ -5,6 +5,8 @@ It combines a digital twin control console, live CV artifact ingestion, graph-ba
 
 ![CascadeNet Dashboard](./public/screenshots/dashboard-cascade.png)
 
+https://cascade-net.vercel.app
+
 ## Why This Project Matters
 
 Most monitoring stacks tell operators that a rack is already hot, noisy, or unstable.

@@ -3,8 +3,6 @@
 **CascadeNet is a multi-modal data center operations prototype that predicts cross-rack cascading failures before they become downtime.**  
 It combines a digital twin control console, live CV artifact ingestion, graph-based risk propagation, and HMAX-style maintenance actions in a system designed to feel like an operator product, not just a model demo.
 
-![CascadeNet Dashboard](./public/screenshots/dashboard-cascade.png)
-
 https://cascade-net.vercel.app
 
 ## Why This Project Matters
